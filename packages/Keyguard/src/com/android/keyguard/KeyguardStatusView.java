@@ -57,7 +57,6 @@ public class KeyguardStatusView extends GridLayout {
 
         @Override
         public void onTimeChanged() {
-
             if (mEnableRefresh) {
                 refresh();
             }
