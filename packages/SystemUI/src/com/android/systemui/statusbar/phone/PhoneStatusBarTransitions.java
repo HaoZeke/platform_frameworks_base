@@ -89,7 +89,6 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
         }
         if (animate) {
             AnimatorSet anims = new AnimatorSet();
-<<<<<<< HEAD
             anims.playTogether(
                     animateTransitionTo(mLeftSide, newAlpha),
                     animateTransitionTo(mStatusIcons, newAlpha),
@@ -107,12 +106,8 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
             mLeftSide.setAlpha(newAlpha);
             mStatusIcons.setAlpha(newAlpha);
             mSignalCluster.setAlpha(newAlpha);
-//            mBattery.setAlpha(newAlphaBC);
-
             mNetworkTraffic.setAlpha(newAlpha);
-            if (mBattery != null) {
-                mBattery.setAlpha(newAlphaBC);
-            }
+//            mBattery.setAlpha(newAlphaBC);
             mClock.setAlpha(newAlphaBC);
         }
     }
