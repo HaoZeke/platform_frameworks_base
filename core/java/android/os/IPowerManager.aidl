@@ -51,6 +51,7 @@ interface IPowerManager
 
     void reboot(boolean confirm, String reason, boolean wait);
     void rebootSafeMode(boolean confirm, boolean wait);
+    void rebootCustom(boolean confirm, String reason, boolean wait);
     void shutdown(boolean confirm, String reason, boolean wait);
     void crash(String message);
 
@@ -65,4 +66,8 @@ interface IPowerManager
 
     // sets the attention light (used by phone app only)
     void setAttentionLight(boolean on, int color);
+
+    // temporarily overrides the button brightness settings to allow the user to
+    // see the effect of a settings change without applying it immediately
+    void setTemporaryButtonBrightnessSettingOverride(int brightness);
 }

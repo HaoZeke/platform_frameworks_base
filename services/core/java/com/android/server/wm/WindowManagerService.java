@@ -139,6 +139,8 @@ import com.android.server.LocalServices;
 import com.android.server.UiThread;
 import com.android.server.Watchdog;
 import com.android.server.input.InputManagerService;
+import com.android.server.lights.Light;
+import com.android.server.lights.LightsManager;
 import com.android.server.policy.PhoneWindowManager;
 import com.android.server.power.ShutdownThread;
 
@@ -5656,6 +5658,18 @@ public class WindowManagerService extends IWindowManager.Stub
         ShutdownThread.rebootSafeMode(mContext, confirm);
     }
 
+    // Called by window manager policy.  Not exposed externally.
+    @Override
+    public void reboot(String reason, boolean confirm) {
+        ShutdownThread.reboot(mContext, reason, confirm);
+    }
+
+    // Called by window manager policy.  Not exposed externally.
+    @Override
+    public void rebootCustom(String reason, boolean confirm) {
+        ShutdownThread.rebootCustom(mContext, reason, confirm);
+    }
+
     public void setCurrentProfileIds(final int[] currentProfileIds) {
         synchronized (mWindowMap) {
             mCurrentProfileIds = currentProfileIds;
@@ -5902,6 +5916,18 @@ public class WindowManagerService extends IWindowManager.Stub
         }
 
         mPolicy.enableScreenAfterBoot();
+
+        // clear any intrusive lighting which may still be on from the
+        // crypto landing ui
+        LightsManager lm = LocalServices.getService(LightsManager.class);
+        Light batteryLight = lm.getLight(LightsManager.LIGHT_ID_BATTERY);
+        Light notifLight = lm.getLight(LightsManager.LIGHT_ID_NOTIFICATIONS);
+        if (batteryLight != null) {
+            batteryLight.turnOff();
+        }
+        if (notifLight != null) {
+            notifLight.turnOff();
+        }
 
         // Make sure the last requested orientation has been applied.
         updateRotationUnchecked(false, false);

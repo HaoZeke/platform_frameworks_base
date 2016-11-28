@@ -161,7 +161,7 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         mIconController.setIconVisibility(mSlotAlarmClock, false);
 
         // zen
-        mIconController.setIcon(mSlotZen, R.drawable.stat_sys_zen_important, null);
+        mIconController.setIcon(mSlotZen, R.drawable.stat_sys_dnd_important, null);
         mIconController.setIconVisibility(mSlotZen, false);
 
         // volume
@@ -247,16 +247,25 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
 
         if (DndTile.isVisible(mContext) || DndTile.isCombinedIcon(mContext)) {
             zenVisible = mZen != Global.ZEN_MODE_OFF;
-            zenIconId = mZen == Global.ZEN_MODE_NO_INTERRUPTIONS
-                    ? R.drawable.stat_sys_dnd_total_silence : R.drawable.stat_sys_dnd;
+            if (mZen == Global.ZEN_MODE_NO_INTERRUPTIONS) {
+                zenIconId = R.drawable.stat_sys_dnd_total_silence;
+            } else if (mZen == Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS) {
+                zenIconId = R.drawable.stat_sys_dnd_important;
+            } else  {
+                zenIconId = R.drawable.stat_sys_dnd;
+            }
             zenDescription = mContext.getString(R.string.quick_settings_dnd_label);
+        } else if (mZen == Global.ZEN_MODE_ALARMS) {
+            zenVisible = true;
+            zenIconId = R.drawable.stat_sys_dnd;
+            zenDescription = mContext.getString(R.string.interruption_level_alarms);
         } else if (mZen == Global.ZEN_MODE_NO_INTERRUPTIONS) {
             zenVisible = true;
-            zenIconId = R.drawable.stat_sys_zen_none;
+            zenIconId = R.drawable.stat_sys_dnd_total_silence;
             zenDescription = mContext.getString(R.string.interruption_level_none);
         } else if (mZen == Global.ZEN_MODE_IMPORTANT_INTERRUPTIONS) {
             zenVisible = true;
-            zenIconId = R.drawable.stat_sys_zen_important;
+            zenIconId = R.drawable.stat_sys_dnd_important;
             zenDescription = mContext.getString(R.string.interruption_level_priority);
         }
 
@@ -265,11 +274,16 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
             volumeVisible = true;
             volumeIconId = R.drawable.stat_sys_ringer_silent;
             volumeDescription = mContext.getString(R.string.accessibility_ringer_silent);
-        } else if (mZen != Global.ZEN_MODE_NO_INTERRUPTIONS && mZen != Global.ZEN_MODE_ALARMS &&
-                audioManager.getRingerModeInternal() == AudioManager.RINGER_MODE_VIBRATE) {
-            volumeVisible = true;
-            volumeIconId = R.drawable.stat_sys_ringer_vibrate;
-            volumeDescription = mContext.getString(R.string.accessibility_ringer_vibrate);
+        } else if (mZen != Global.ZEN_MODE_NO_INTERRUPTIONS && mZen != Global.ZEN_MODE_ALARMS) {
+            if (audioManager.getRingerModeInternal() == AudioManager.RINGER_MODE_VIBRATE) {
+                volumeVisible = true;
+                volumeIconId = R.drawable.stat_sys_ringer_vibrate;
+                volumeDescription = mContext.getString(R.string.accessibility_ringer_vibrate);
+            } else if(audioManager.getRingerModeInternal() == AudioManager.RINGER_MODE_SILENT) {
+                volumeVisible = true;
+                volumeIconId = R.drawable.stat_sys_ringer_silent;
+                volumeDescription = mContext.getString(R.string.accessibility_ringer_silent);
+            }
         }
 
         if (zenVisible) {

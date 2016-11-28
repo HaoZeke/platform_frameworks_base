@@ -25,6 +25,7 @@ import android.support.v14.preference.SwitchPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.Preference.OnPreferenceChangeListener;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
@@ -59,6 +60,13 @@ public class NightModeFragment extends PreferenceFragment implements Tunable,
         super.onCreate(savedInstanceState);
         mNightModeController = new NightModeController(getContext());
         mUiModeManager = getContext().getSystemService(UiModeManager.class);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -89,15 +97,25 @@ public class NightModeFragment extends PreferenceFragment implements Tunable,
         View switchBar = view.findViewById(R.id.switch_bar);
         mSwitch = (Switch) switchBar.findViewById(android.R.id.switch_widget);
         mSwitch.setChecked(mNightModeController.isEnabled());
+        mSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleState();
+            }
+        });
         switchBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean newState = !mNightModeController.isEnabled();
-                MetricsLogger.action(getContext(), MetricsEvent.ACTION_TUNER_NIGHT_MODE, newState);
-                mNightModeController.setNightMode(newState);
-                mSwitch.setChecked(newState);
+                toggleState();
             }
         });
+    }
+
+    private void toggleState() {
+        boolean newState = !mNightModeController.isEnabled();
+        MetricsLogger.action(getContext(), MetricsEvent.ACTION_TUNER_NIGHT_MODE, newState);
+        mNightModeController.setNightMode(newState);
+        mSwitch.setChecked(newState);
     }
 
     @Override
@@ -141,6 +159,16 @@ public class NightModeFragment extends PreferenceFragment implements Tunable,
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void postCalculateDisabled() {
         // Post this because its the easiest way to wait for all state to be calculated.
         getView().post(new Runnable() {
@@ -152,7 +180,7 @@ public class NightModeFragment extends PreferenceFragment implements Tunable,
     }
 
     private void calculateDisabled() {
-        int enabledCount = (mAdjustTint.isChecked() ? 1 : 0)
+        /*int enabledCount = (mAdjustTint.isChecked() ? 1 : 0)
                 + (mAdjustBrightness.isChecked() ? 1 : 0);
         if (enabledCount == 1) {
             if (mAdjustTint.isChecked()) {
@@ -163,7 +191,7 @@ public class NightModeFragment extends PreferenceFragment implements Tunable,
         } else {
             mAdjustTint.setEnabled(true);
             mAdjustBrightness.setEnabled(true);
-        }
+        }*/
     }
 
     @Override
